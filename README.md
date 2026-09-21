@@ -478,6 +478,44 @@ A final system test was performed using three simultaneous clients: Alice, Bob, 
 
 ---
 
+## Network Diagram for TCP Client/Server Application Chat - SUMMARY
+
+```mermaid
+flowchart TB
+    subgraph Clients
+        C1[Client]
+    end
+
+    subgraph Server
+        CL[CONTROL Listening Socket]
+        DL[Temporary DATA Listening Socket]
+        ACS[active_clients Dictionary]
+    end
+
+    C1 -->|1. connect to CONTROL port| CL
+    CL -->|2. accept CONTROL connection| C1
+    CL -->|3. create temporary DATA socket| DL
+    DL -->|4. OS assigns available DATA port| DL
+    CL -->|5. send 200 + DATA port| C1
+    C1 -->|6. connect to DATA port| DL
+    DL -->|7. accept DATA connection| C1
+    C1 -->|8. login username| CL
+    CL -->|9. validate username / register user| ACS
+    CL -->|10. command processing| ACS
+    ACS -->|11. server responses/messages via DATA| C1
+```
+
+Each client first establishes a **CONTROL connection** with the server to send
+commands such as `login`, `who`, `broadcast`, `private`, and `quit`.
+
+After the CONTROL connection is established, the server creates a temporary
+DATA listening socket, selects an available TCP port, and sends that DATA port
+back to the client through the CONTROL connection.
+
+The client then establishes a separate **DATA connection**, which is used to
+receive server responses, broadcast messages, private messages, and join/logout
+notifications.
+
 ## Academic Context & Attribution
 
 This project originated from a course assignment for **CNT 4713 – Net-Centric Computing** at **Florida International University (FIU)**, taught by Professor **Xavier Caddle**. This repository contains my implementation and technical documentation created for professional portfolio purposes. The repository is intended to demonstrate practical experience with TCP networking, socket programming, concurrent systems, and application-layer protocol design.
